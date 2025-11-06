@@ -105,54 +105,98 @@
         </el-form>
 
         <!-- 显示的table -->
-        <el-table :data="tableData" style="width: 85%">
-          <el-table-column label="序号" width="50">
-            <template slot-scope="scope">
-              <!---<i class="el-icon-time"></i>-->
-              <span style="margin-left: 10px">{{ scope.row.id }}</span>
-            </template>
+        <!-- 显示的table -->
+        <el-table
+          :data="tableData"
+          style="width: 100%"
+          border
+          stripe
+          :default-sort="{ prop: 'id', order: 'ascending' }"
+          class="question-table"
+        >
+          <el-table-column type="index" label="序号" width="60" align="center">
           </el-table-column>
-          <el-table-column label="题目" width="250">
+
+          <el-table-column
+            prop="question"
+            label="题目内容"
+            width="300"
+            show-overflow-tooltip
+          >
+          </el-table-column>
+
+          <el-table-column label="选项" width="320">
             <template slot-scope="scope">
-              <!---<el-popover trigger="hover" placement="top">-->
-              <!---
-                <p>姓名: {{ scope.row.name }}</p>
-                <p>住址: {{ scope.row.address }}</p>-->
-              <div slot="reference" class="name-wrapper">
-                <span style="margin-left: 10px">{{ scope.row.question }}</span>
-                <!---<el-tag size="medium">{{ scope.row.question }}</el-tag>-->
+              <div class="options-content">
+                <div v-if="scope.row.optionsA">A. {{ scope.row.optionsA }}</div>
+                <div v-if="scope.row.optionsB">B. {{ scope.row.optionsB }}</div>
+                <div v-if="scope.row.optionsC">C. {{ scope.row.optionsC }}</div>
+                <div v-if="scope.row.optionsD">D. {{ scope.row.optionsD }}</div>
               </div>
-              <!---</el-popover>-->
             </template>
           </el-table-column>
 
-          <el-table-column label="选项" width="240">
+          <el-table-column
+            prop="answer"
+            label="正确答案"
+            width="100"
+            align="center"
+          >
             <template slot-scope="scope">
-              <!---<i class="el-icon-time"></i>-->
-              <span style="margin-left: 10px">{{ scope.row.options }}</span>
+              <el-tag type="success">{{ scope.row.answer }}</el-tag>
             </template>
           </el-table-column>
 
-          <el-table-column label="答案" width="180">
+          <el-table-column prop="type" label="题型" width="100" align="center">
             <template slot-scope="scope">
-              <!---<i class="el-icon-time"></i>-->
-              <span style="margin-left: 10px">{{ scope.row.answer }}</span>
-            </template>
-          </el-table-column>
-
-          <el-table-column label="操作">
-            <template slot-scope="scope">
-              <el-button
-                size="mini"
-                @click="handleEdit(scope.$index, scope.row)"
-                >编辑</el-button
+              <el-tag
+                :type="scope.row.type === '单选题' ? 'primary' : 'warning'"
               >
-              <el-button
-                size="mini"
-                type="danger"
-                @click="handleDelete(scope.$index, scope.row)"
-                >删除</el-button
+                {{ scope.row.type }}
+              </el-tag>
+            </template>
+          </el-table-column>
+
+          <el-table-column
+            prop="difficulty"
+            label="难度"
+            width="100"
+            align="center"
+          >
+            <template slot-scope="scope">
+              <el-tag
+                :type="
+                  scope.row.difficulty === '简单'
+                    ? 'success'
+                    : scope.row.difficulty === '中等'
+                    ? 'warning'
+                    : 'danger'
+                "
               >
+                {{ scope.row.difficulty }}
+              </el-tag>
+            </template>
+          </el-table-column>
+
+          <el-table-column label="操作" width="180">
+            fixed="right" align="center" >
+            <template slot-scope="scope">
+              <div class="action-buttons">
+                <el-button
+                  size="mini"
+                  type="primary"
+                  @click="handleEdit(scope.$index, scope.row)"
+                  icon="el-icon-edit"
+                  >编辑</el-button
+                >
+                <el-button
+                  size="mini"
+                  type="danger"
+                  @click="handleDelete(scope.$index, scope.row)"
+                  icon="el-icon-delete"
+                  >删除</el-button
+                >
+              </div>
             </template>
           </el-table-column>
         </el-table>
@@ -169,19 +213,19 @@
               <el-input v-model="form.question" autocomplete="off"></el-input>
             </el-form-item>
 
-            <el-form-item label="选项a" :label-width="formLabelWidth">
+            <el-form-item label="选项A" :label-width="formLabelWidth">
               <el-input v-model="form.optiona" autocomplete="off"></el-input>
             </el-form-item>
 
-            <el-form-item label="选项b" :label-width="formLabelWidth">
+            <el-form-item label="选项B" :label-width="formLabelWidth">
               <el-input v-model="form.optionb" autocomplete="off"></el-input>
             </el-form-item>
 
-            <el-form-item label="选项c" :label-width="formLabelWidth">
+            <el-form-item label="选项C" :label-width="formLabelWidth">
               <el-input v-model="form.optionc" autocomplete="off"></el-input>
             </el-form-item>
 
-            <el-form-item label="选项d" :label-width="formLabelWidth">
+            <el-form-item label="选项D" :label-width="formLabelWidth">
               <el-input v-model="form.optiond" autocomplete="off"></el-input>
             </el-form-item>
 
@@ -230,26 +274,46 @@ export default {
         {
           id: "1",
           question: "中国的首都是哪个城市？",
-          options: "北京，上海，广州，深圳",
-          answer: "北京",
+          optionsA: "北京",
+          optionsB: "上海",
+          optionsC: "广州",
+          optionsD: "深圳",
+          answer: "A",
+          type: "单选题",
+          difficulty: "简单",
         },
         {
           id: "2",
           question: "以下哪个不是编程语言？",
-          options: "Java,Python,HTML,C++",
-          answer: "HTML",
+          optionsA: "Java",
+          optionsB: "Python",
+          optionsC: "HTML",
+          optionsD: "C++",
+          answer: "C",
+          type: "单选题",
+          difficulty: "简单",
         },
         {
           id: "3",
-          question: "Vue.js的主要特点是什么？ ",
-          options: "响应式，组件化，虚拟DOM，以上都是",
-          answer: "以上都是",
+          question: "Vue.js的主要特点是什么？",
+          optionsA: "响应式",
+          optionsB: "组件化",
+          optionsC: "虚拟DOM",
+          optionsD: "以上都是",
+          answer: "D",
+          type: "单选题",
+          difficulty: "中等",
         },
         {
           id: "4",
-          question: "哪些是JavaScript的数据类型？",
-          options: "字符串，数字，布尔值，以上都是",
-          answer: "以上都是",
+          question: "以下哪些是JavaScript的数据类型？",
+          optionsA: "字符串",
+          optionsB: "数字",
+          optionsC: "布尔值",
+          optionsD: "以上都是",
+          answer: "D",
+          type: "多选题",
+          difficulty: "简单",
         },
       ],
     };
@@ -274,7 +338,6 @@ export default {
 <style>
 .menu-title {
   font-size: 16px;
- 
 }
 
 .menu-link {
@@ -286,4 +349,37 @@ export default {
   text-align: center;
 }
 
+/* 表格样式优化 */
+.question-table {
+  margin-top: 20px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+}
+
+.options-content div {
+  margin-bottom: 4px;
+  font-size: 13px;
+}
+
+.options-content div:last-child {
+  margin-bottom: 0;
+}
+
+/* 表头样式 */
+.el-table .el-table__header-wrapper th {
+  background-color: #f5f7fa;
+  font-weight: bold;
+  color: #606266;
+}
+
+/* 操作按钮样式 */
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 8px; /* 按钮间距 */
+}
+
+/* 或者如果使用按钮组 */
+.el-button-group .el-button {
+  margin: 0;
+}
 </style>
